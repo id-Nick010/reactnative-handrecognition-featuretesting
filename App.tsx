@@ -1,24 +1,17 @@
 // App.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import { Camera } from 'react-native-vision-camera';
 import { loadLSTMModel } from './ModelLoader';
 import type { TensorflowModel } from 'react-native-fast-tflite';
+import { CameraAccess } from './utils/CameraAccess';
 
 const App: React.FC = () => {
   const [modelStatus, setModelStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
   const [model, setModel] = useState<TensorflowModel | null>(null);
 
-  // Request camera permission using Vision Camera hook
-  const { hasPermission, requestPermission } = useCameraPermission();
-  const device = useCameraDevice('back');
-
-  useEffect(() => {
-    requestPermission();
-  }, [requestPermission]);
-
-  // Load the LSTM TFLite model on component mount
+  // Load the LSTM TFLite model on mount
   useEffect(() => {
     async function load() {
       const { model, error } = await loadLSTMModel();
@@ -35,15 +28,20 @@ const App: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {device != null && hasPermission ? (
-        <Camera
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive={true}
-        />
-      ) : (
-        <Text style={styles.text}>No camera available or permission denied.</Text>
-      )} 
+      <CameraAccess>
+        {(device, permissionGranted) =>
+          device != null && permissionGranted ? (
+            <Camera
+              style={StyleSheet.absoluteFill}
+              device={device}
+              isActive={true}
+              // You can later add a frameProcessor for inference
+            />
+          ) : (
+            <Text style={styles.text}>No camera available or permission denied.</Text>
+          )
+        }
+      </CameraAccess>
       <View style={styles.overlay}>
         {modelStatus === 'loading' && <ActivityIndicator size="large" color="#fff" />}
         {modelStatus === 'loaded' && <Text style={styles.text}>✅ Model loaded successfully!</Text>}

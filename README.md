@@ -9,7 +9,7 @@ This project tests a Hand Sign Recognition System using Mediapipe and TensorFlow
 
 ### Task
 - [x] TFLite Model Loader Module 
-- [ ] Vision Camera Feature & Permission Handling Module
+- [x] Vision Camera Feature & Permission Handling Module
 - [ ] Mediapipe Landmark Point Extraction Module
 - [ ] Landmark Data Preprocessing Module
 - [ ] Model Prediction Algorithm Module
